@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Team sign in | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap narrow">
+    <h1>SNDBX team sign in</h1>
+    <form class="stack-form" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="field {% if error %}has-error{% endif %}">
+        <label for="password">Team password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required
+               {% if error %}aria-invalid="true" aria-describedby="password-error"{% endif %}>
+        {% if error %}<p class="error" id="password-error">{{ error }}</p>{% endif %}
+      </div>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

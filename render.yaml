@@ -1,0 +1,15 @@
+# One-click deploy on Render's free tier: New > Blueprint > pick this repo.
+services:
+  - type: web
+    name: sndbx-experts
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && flask --app app seed
+    startCommand: gunicorn "app:create_app()"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.4

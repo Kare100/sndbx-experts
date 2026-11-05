@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your matches | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap narrow">
+    <h1>{% if matches %}Advisors for your request{% else %}We're finding the right advisor{% endif %}</h1>
+    <blockquote class="your-brief">
+      <p>{{ req.description }}</p>
+      <footer>{{ req.category|category }}{% if req.hub_pref %}, prefers {{ req.hub_pref }}{% endif %}. Reference {{ req.ref }}</footer>
+    </blockquote>
+
+    {% if matches %}
+      <ol class="match-list">
+        {% for m in matches %}
+          {% set e = m.expert %}
+          <li class="match {{ e.hub|hubclass }}">
+            <div class="avatar" aria-hidden="true">{{ e.name|initials }}</div>
+            <div class="match-body">
+              <h2><a href="{{ url_for('public.expert', slug=e.slug, request=req.ref) }}">{{ e.name }}</a></h2>
+              <p class="expert-title">{{ e.title }}, {{ e.hub }}</p>
+              <ul class="reasons">
+                {% for r in m.reasons %}<li>{{ r }}</li>{% endfor %}
+              </ul>
+              <p class="price-line"><strong>{{ e.rate|kes }}</strong> per hour session.
+                {% if next_slot[e.id] %}Next opening {{ next_slot[e.id]|slot(e.hub) }}.{% else %}No open times this fortnight.{% endif %}</p>
+              <a class="btn btn-secondary" href="{{ url_for('public.expert', slug=e.slug, request=req.ref) }}">Choose a time with {{ e.name.split()[0] }}</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <div class="empty">
+        <p>None of our listed advisors is a clear fit yet. The SNDBX team has your request and will email {{ req.email }} with a recommendation within one working day.</p>
+        <a class="btn btn-secondary" href="{{ url_for('public.experts') }}">Browse all advisors</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

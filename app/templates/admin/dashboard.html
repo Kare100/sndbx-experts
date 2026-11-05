@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | SNDBX Experts{% endblock %}
+{% block body_class %}page-admin{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h1>Team dashboard</h1>
+      <form method="post" action="{{ url_for('admin.logout') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="btn btn-ghost" type="submit">Sign out</button>
+      </form>
+    </div>
+
+    <dl class="stats">
+      <div><dt>New requests</dt><dd>{{ stats.new_requests }}</dd></div>
+      <div><dt>Bookings to confirm</dt><dd>{{ stats.pending }}</dd></div>
+      <div><dt>Upcoming sessions</dt><dd>{{ stats.upcoming }}</dd></div>
+      <div><dt>Collected</dt><dd>{{ stats.paid_total|kes }}</dd></div>
+    </dl>
+
+    <div class="section-head">
+      <h2>Bookings</h2>
+      <nav class="tabs" aria-label="Filter bookings">
+        <a href="{{ url_for('admin.dashboard') }}" {% if not status %}aria-current="page"{% endif %}>All</a>
+        {% for s in BOOKING_STATUSES %}
+          <a href="{{ url_for('admin.dashboard', status=s) }}" {% if status == s %}aria-current="page"{% endif %}>{{ s|capitalize }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    {% if bookings %}
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Session</th><th>Client</th><th>Advisor</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+              <tr>
+                <td>{{ b.start_at|slot(b.hub) }}<br><small>{{ b.ref }}{% if b.request_ref %}, from {{ b.request_ref }}{% endif %}</small></td>
+                <td>{{ b.client_name }}<br><small>{{ b.email }}<br>+{{ b.phone }}</small>
+                  {% if b.notes %}<details><summary>Notes</summary><p>{{ b.notes }}</p></details>{% endif %}</td>
+                <td>{{ b.expert_name }}<br><small>{{ b.hub }}</small></td>
+                <td class="nowrap">{{ b.amount|kes }}<br><small class="pay-{{ b.payment_status }}">{{ {'unpaid': 'Not paid', 'requested': 'Prompt sent', 'paid': 'Paid'}[b.payment_status] }}</small></td>
+                <td><span class="status status-{{ b.status }}">{{ b.status|capitalize }}</span></td>
+                <td>
+                  <form class="actions" method="post" action="{{ url_for('admin.update_booking', booking_id=b.id) }}">
+                    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                    <input type="hidden" name="filter" value="{{ status }}">
+                    {% if b.status == 'pending' %}<button name="action" value="confirmed" class="btn btn-small">Confirm</button>{% endif %}
+                    {% if b.status == 'confirmed' %}<button name="action" value="completed" class="btn btn-small">Mark completed</button>{% endif %}
+                    {% if b.payment_status != 'paid' and b.status != 'cancelled' %}<button name="action" value="mark_paid" class="btn btn-small btn-ghost">Mark paid</button>{% endif %}
+                    {% if b.status in ('pending', 'confirmed') %}<button name="action" value="cancelled" class="btn btn-small btn-danger">Cancel</button>{% endif %}
+                    {% if b.status == 'cancelled' %}<button name="action" value="pending" class="btn btn-small btn-ghost">Reopen</button>{% endif %}
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">No {{ status or '' }} bookings yet. New bookings from clients appear here.</p>
+    {% endif %}
+
+    <h2 id="requests">Client requests</h2>
+    {% if requests %}
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Received</th><th>Client</th><th>Request</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for r in requests %}
+              <tr>
+                <td>{{ r.created_at|datetime }}<br><small><a href="{{ url_for('public.matches', ref=r.ref) }}">{{ r.ref }}</a></small></td>
+                <td>{{ r.name }}{% if r.company %}<br><small>{{ r.company }}</small>{% endif %}<br><small>{{ r.email }}<br>+{{ r.phone }}</small></td>
+                <td class="request-text"><strong>{{ r.category|category }}</strong>{% if r.hub_pref %}, prefers {{ r.hub_pref }}{% endif %}<p>{{ r.description }}</p></td>
+                <td>
+                  <form method="post" action="{{ url_for('admin.update_request', request_id=r.id) }}" class="inline-select">
+                    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                    <label class="visually-hidden" for="status-{{ r.id }}">Status for {{ r.ref }}</label>
+                    <select id="status-{{ r.id }}" name="status">
+                      {% for s in REQUEST_STATUSES %}<option value="{{ s }}" {% if s == r.status %}selected{% endif %}>{{ s|capitalize }}</option>{% endfor %}
+                    </select>
+                    <button class="btn btn-small btn-ghost" type="submit">Save</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">No client requests yet. Requests from the "Get matched" form appear here.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

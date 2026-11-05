@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SNDBX Experts{% endblock %}</title>
+  <meta name="description" content="Book a session with an SNDBX advisor in Nairobi, Addis Ababa, Atlanta or Berlin.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="{{ url_for('public.home') }}">SNDBX<span>Experts</span></a>
+      <nav aria-label="Main">
+        <a href="{{ url_for('public.experts') }}" {% if request.endpoint == 'public.experts' %}aria-current="page"{% endif %}>Find an expert</a>
+        <a href="{{ url_for('public.new_request') }}" {% if request.endpoint == 'public.new_request' %}aria-current="page"{% endif %}>Get matched</a>
+        {% if session.is_admin %}
+          <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="wrap">
+          {% for m in messages %}<p class="notice" role="status">{{ m }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>SNDBX Experts connects small businesses with SNDBX advisors in Nairobi, Addis Ababa, Atlanta and Berlin.</p>
+      <p><a href="{{ url_for('admin.login') }}">SNDBX team sign in</a></p>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

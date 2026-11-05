@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ b.ref }} | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap narrow">
+    <div class="confirmation {{ b.hub|hubclass }}">
+      {% if b.status == 'cancelled' %}
+        <h1>This session was cancelled</h1>
+      {% elif b.status == 'confirmed' %}
+        <h1>Your session is confirmed</h1>
+      {% elif b.status == 'completed' %}
+        <h1>Session completed</h1>
+      {% else %}
+        <h1>Session requested</h1>
+        <p class="lede">Approve the M-Pesa prompt on your phone. The SNDBX team will confirm and email {{ b.email }} the call link.</p>
+      {% endif %}
+
+      <dl class="facts">
+        <div><dt>Advisor</dt><dd><a href="{{ url_for('public.expert', slug=b.slug) }}">{{ b.expert_name }}</a>, {{ b.expert_title }}</dd></div>
+        <div><dt>Time</dt><dd>{{ b.start_at|slot(b.hub) }}</dd></div>
+        <div><dt>Amount</dt><dd>{{ b.amount|kes }}</dd></div>
+        <div><dt>Payment</dt><dd>{{ {'unpaid': 'Not paid', 'requested': 'Waiting for M-Pesa approval', 'paid': 'Paid'}[b.payment_status] }}</dd></div>
+        <div><dt>Booking reference</dt><dd>{{ b.ref }}</dd></div>
+      </dl>
+      <p class="hint">Keep this page's link to check your booking later.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

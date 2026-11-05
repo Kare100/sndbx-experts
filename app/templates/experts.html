@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Find an expert | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <h1>Find an expert</h1>
+    <form class="filters" method="get" role="search">
+      <div class="field">
+        <label for="q">Search</label>
+        <input id="q" name="q" type="search" value="{{ q }}" placeholder="e.g. tax, export, pitch deck">
+      </div>
+      <div class="field">
+        <label for="category">Area</label>
+        <select id="category" name="category">
+          <option value="">All areas</option>
+          {% for key, label in CATEGORIES.items() %}
+            <option value="{{ key }}" {% if key == category %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="hub">Hub</label>
+        <select id="hub" name="hub">
+          <option value="">All hubs</option>
+          {% for h in HUBS %}
+            <option value="{{ h }}" {% if h == hub %}selected{% endif %}>{{ h }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-secondary" type="submit">Show advisors</button>
+    </form>
+
+    <p class="result-count">{{ experts|length }} advisor{{ '' if experts|length == 1 else 's' }}
+      {% if q or category or hub %}<a href="{{ url_for('public.experts') }}">Clear filters</a>{% endif %}</p>
+
+    {% if experts %}
+      <div class="expert-grid">
+        {% for e in experts %}{% include "_expert_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">
+        <p>No advisors match those filters. Try a broader search, or describe your problem and we'll suggest who can help.</p>
+        <a class="btn btn-primary" href="{{ url_for('public.new_request', description=q) }}">Get matched</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

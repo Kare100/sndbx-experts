@@ -1,0 +1,20 @@
+<div class="field {% if errors.name %}has-error{% endif %}">
+  <label for="name">Full name</label>
+  <input id="name" name="name" autocomplete="name" required value="{{ form.get('name', '') }}"
+         {% if errors.name %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+  {% if errors.name %}<p class="error" id="name-error">{{ errors.name }}</p>{% endif %}
+</div>
+<div class="field-row">
+  <div class="field {% if errors.email %}has-error{% endif %}">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required value="{{ form.get('email', '') }}"
+           {% if errors.email %}aria-invalid="true" aria-describedby="email-error"{% endif %}>
+    {% if errors.email %}<p class="error" id="email-error">{{ errors.email }}</p>{% endif %}
+  </div>
+  <div class="field {% if errors.phone %}has-error{% endif %}">
+    <label for="phone">M-Pesa phone number</label>
+    <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="0712 345 678" value="{{ form.get('phone', '') }}"
+           {% if errors.phone %}aria-invalid="true" aria-describedby="phone-error"{% endif %}>
+    {% if errors.phone %}<p class="error" id="phone-error">{{ errors.phone }}</p>{% endif %}
+  </div>
+</div>

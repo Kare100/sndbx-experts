@@ -1,0 +1,10 @@
+<article class="expert-card {{ e.hub|hubclass }}">
+  <div class="avatar" aria-hidden="true">{{ e.name|initials }}</div>
+  <div class="expert-card-body">
+    <h3><a href="{{ url_for('public.expert', slug=e.slug) }}{% if request_ref %}?request={{ request_ref }}{% endif %}">{{ e.name }}</a></h3>
+    <p class="expert-title">{{ e.title }}</p>
+    <p class="expert-meta"><span class="hub-tag">{{ e.hub }}</span> {{ e.years_experience }} years experience</p>
+    <p class="skills">{{ e.skills }}</p>
+    <p class="price-line"><strong>{{ e.rate|kes }}</strong> per hour session <span class="rating">{{ '%.1f'|format(e.rating) }} rating from {{ e.sessions_done }} sessions</span></p>
+  </div>
+</article>

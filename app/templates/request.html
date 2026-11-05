@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Get matched | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap narrow">
+    <h1>Get matched with an advisor</h1>
+    <p class="lede">Describe what you're dealing with. We'll suggest up to three SNDBX advisors and show why each one fits.</p>
+
+    <form class="stack-form" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+      <div class="field {% if errors.description %}has-error{% endif %}">
+        <label for="description">What do you need help with?</label>
+        <textarea id="description" name="description" rows="6" required minlength="20"
+          {% if errors.description %}aria-invalid="true" aria-describedby="description-error"{% endif %}>{{ form.get('description', '') }}</textarea>
+        {% if errors.description %}<p class="error" id="description-error">{{ errors.description }}</p>{% endif %}
+      </div>
+
+      <div class="field-row">
+        <div class="field {% if errors.category %}has-error{% endif %}">
+          <label for="category">Closest area</label>
+          <select id="category" name="category" {% if errors.category %}aria-invalid="true" aria-describedby="category-error"{% endif %}>
+            <option value="">Let us decide from your description</option>
+            {% for key, label in CATEGORIES.items() %}
+              <option value="{{ key }}" {% if form.get('category') == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if errors.category %}<p class="error" id="category-error">{{ errors.category }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label for="hub_pref">Preferred hub <span class="optional">Optional</span></label>
+          <select id="hub_pref" name="hub_pref">
+            <option value="">Any hub</option>
+            {% for h in HUBS %}
+              <option value="{{ h }}" {% if form.get('hub_pref') == h %}selected{% endif %}>{{ h }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      {% include "_contact_fields.html" %}
+
+      <div class="field">
+        <label for="company">Business name <span class="optional">Optional</span></label>
+        <input id="company" name="company" autocomplete="organization" value="{{ form.get('company', '') }}">
+      </div>
+
+      <button class="btn btn-primary" type="submit">Show my matches</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

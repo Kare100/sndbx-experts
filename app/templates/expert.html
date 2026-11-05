@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ expert.name }} | SNDBX Experts{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap profile-grid">
+    <div class="profile {{ expert.hub|hubclass }}">
+      <a class="back" href="{{ url_for('public.experts') }}">All advisors</a>
+      <div class="profile-head">
+        <div class="avatar avatar-lg" aria-hidden="true">{{ expert.name|initials }}</div>
+        <div>
+          <h1>{{ expert.name }}</h1>
+          <p class="expert-title">{{ expert.title }}</p>
+          <p class="expert-meta"><span class="hub-tag">{{ expert.hub }}</span> {{ expert.category|category }}</p>
+        </div>
+      </div>
+      <p class="bio">{{ expert.bio }}</p>
+      <dl class="facts">
+        <div><dt>Session</dt><dd>{{ expert.rate|kes }} for one hour</dd></div>
+        <div><dt>Experience</dt><dd>{{ expert.years_experience }} years</dd></div>
+        <div><dt>Rating</dt><dd>{{ '%.1f'|format(expert.rating) }} from {{ expert.sessions_done }} sessions</dd></div>
+        <div><dt>Languages</dt><dd>{{ expert.languages }}</dd></div>
+        <div><dt>Helps with</dt><dd>{{ expert.skills }}</dd></div>
+      </dl>
+    </div>
+
+    <form class="booking-panel" method="post" action="{{ url_for('public.book', slug=expert.slug) }}" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="request_ref" value="{{ request_ref }}">
+      <h2>Book a session</h2>
+
+      <fieldset class="slots {% if errors.slot_id %}has-error{% endif %}">
+        <legend>Choose a time</legend>
+        {% if differs_from_nairobi(expert.hub) %}<p class="hint">Times are in {{ expert.hub }}. Nairobi time is shown in brackets.</p>{% endif %}
+        {% if errors.slot_id %}<p class="error">{{ errors.slot_id }}</p>{% endif %}
+        {% if days %}
+          {% for day, slots in days.items() %}
+            <div class="slot-day">
+              <p class="slot-day-label">{{ slots[0].start_at|slotday(expert.hub) }}</p>
+              <div class="slot-options">
+                {% for s in slots %}
+                  <label class="slot">
+                    <input type="radio" name="slot_id" value="{{ s.id }}" required
+                      {% if form.get('slot_id')|string == s.id|string %}checked{% endif %}>
+                    <span>{{ s.start_at|slottime(expert.hub) }}{% if differs_from_nairobi(expert.hub) %}<small>({{ s.start_at|nbotime }})</small>{% endif %}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="empty-inline">{{ expert.name.split()[0] }} has no open times in the next two weeks. <a href="{{ url_for('public.new_request') }}">Get matched with another advisor</a>.</p>
+        {% endif %}
+      </fieldset>
+
+      {% include "_contact_fields.html" %}
+
+      <div class="field">
+        <label for="notes">What should {{ expert.name.split()[0] }} know before the call? <span class="optional">Optional</span></label>
+        <textarea id="notes" name="notes" rows="3">{{ form.get('notes', '') }}</textarea>
+      </div>
+
+      <div class="pay-summary">
+        <p>You'll get an M-Pesa prompt for <strong>{{ expert.rate|kes }}</strong> on this phone number.</p>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" {% if not days %}disabled{% endif %}>Book and pay {{ expert.rate|kes }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
